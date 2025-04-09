@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pokédex</title>
+  <link rel="stylesheet" href="pokedex.css" />
+  <style>
+    /* Estilos básicos de exemplo. Remova se você já tem um CSS separado */
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #f00;
+      font-family: sans-serif;
+    }
+    #pokemonListContainer {
+      position: absolute;
+      top: 0px;
+      left: 400px;
+      transform: none;
+      z-index: 10;
+      text-align: center;
+      width: 280px;
+      background-color: #1a1a1a;
+      border-radius: 10px;
+      padding: 10px;
+      box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+    }
+    #pokemonListContainer h3 {
+      color: white;
+      margin-top: 5px;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+    .pokemon-column {
+      width: 48%;
+      right: 150px;
+    }
+    .pokemon-button {
+      width: 100%;
+      margin-bottom: 5px;
+      background: linear-gradient(to bottom, #307bfb 0%, #0530e5 80%);
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-weight: bold;
+      padding: 5px 0;
+      cursor: pointer;
+      box-shadow: -1px 2px #001c91;
+      transition: all 0.2s;
+    }
+    .pokemon-button.selected {
+      background: linear-gradient(to bottom, #50fb05 0%, #057b05 100%);
+      box-shadow: -1px 2px #004200;
+    }
+    .pokemon-button:hover {
+      background: linear-gradient(to bottom, #4c8ffd 0%, #1e4cfd 80%);
+      transform: translateY(-2px);
+    }
+    .pokemon-button:active {
+      background: linear-gradient(to bottom, #0530e5 0%, #001c91 80%);
+      transform: translateY(1px);
+      box-shadow: -1px 1px #001c91;
+    }
+  </style>
+</head>
+<body>
+  <div id="pokemonListContainer">
+    <h3>Pokémon List</h3>
+    <div id="pokemonButtons" style="display: flex; flex-wrap: wrap; justify-content: space-between;">
+      <div class="pokemon-column">
+        <button class="pokemon-button" onclick="selectPokemon(this, 'Pikachu')">Pikachu</button>
+        <button class="pokemon-button" onclick="selectPokemon(this, 'Charizard')">Charizard</button>
+        <button class="pokemon-button" onclick="selectPokemon(this, 'Bulbasaur')">Bulbasaur</button>
+        <button class="pokemon-button" onclick="selectPokemon(this, 'Squirtle')">Squirtle</button>
+        <button class="pokemon-button" onclick="selectPokemon(this, 'Jigglypuff')">Jigglypuff</button>
+      </div>
+      <div class="pokemon-column">
+        <button class="pokemon-button" onclick="selectPokemon(this, 'Meowth')">Meowth</button>
+        <button class="pokemon-button" onclick="selectPokemon(this, 'Psyduck')">Psyduck</button>
+        <button class="pokemon-button" onclick="selectPokemon(this, 'Snorlax')">Snorlax</button>
+        <button class="pokemon-button" onclick="selectPokemon(this, 'Eevee')">Eevee</button>
+        <button class="pokemon-button" onclick="selectPokemon(this, 'Mewtwo')">Mewtwo</button>
+      </div>
+    </div>
+  </div>
+  
+  <div id="pokedex">
+    <div id="left">
+      <div id="logo"></div>
+      <div id="bg_curve1_left"></div>
+      <div id="bg_curve2_left"></div>
+      <div id="curve1_left">
+        <div id="buttonGlass">
+          <div id="reflect"></div>
+        </div>
+        <div id="miniButtonGlass1"></div>
+        <div id="miniButtonGlass2"></div>
+        <div id="miniButtonGlass3"></div>
+      </div>
+      <div id="curve2_left">
+        <div id="junction">
+          <div id="junction1"></div>
+          <div id="junction2"></div>
+        </div>
+      </div>
+      <div id="screen">
+        <div id="topPicture">
+          <div id="buttontopPicture1"></div>
+          <div id="buttontopPicture2"></div>
+        </div>
+        <div id="picture">
+          <img id="pokemonImage" title="Click e altere imagem" height="170" />
+        </div>
+        <div id="buttonbottomPicture"></div>
+        <div id="speakers">
+          <div class="sp"></div>
+          <div class="sp"></div>
+          <div class="sp"></div>
+          <div class="sp"></div>
+        </div>
+      </div>
+      <div id="bigbluebutton"></div>
+      <div id="barbutton1"></div>
+      <div id="barbutton2"></div>
+      <div id="cross">
+        <div id="leftcross">
+          <div id="leftT"></div>
+        </div>
+        <div id="topcross">
+          <div id="upT"></div>
+        </div>
+        <div id="rightcross">
+          <div id="rightT"></div>
+        </div>
+        <div id="midcross">
+          <div id="midCircle"></div>
+        </div>
+        <div id="botcross">
+          <div id="downT"></div>
+        </div>
+      </div>
+    </div>
+    <div id="right">
+      <div id="stats">
+        <strong>Name:</strong> <span id="pokemonName"></span><br />
+        <strong>Type:</strong> <span id="pokemonTypes"></span><br />
+        <strong>Height:</strong> <span id="pokemonHeight"></span>m<br />
+        <strong>Weight:</strong> <span id="pokemonWeight"></span>kg<br />
+        <strong>Skill:</strong> <span id="pokemonSkills"></span>...
+      </div>
+      
+      
+      </div>
+    </div>
+  </div>
+
+<script>
+  const pokemonCache = {};
+  
+  async function fetchPokemonData(pokemonName) {
+    const name = pokemonName.toLowerCase();
+    
+    if (pokemonCache[name]) {
+      return pokemonCache[name];
+    }
+    
+    try {
+      const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${name}`);
+      
+      if (!response.ok) {
+        throw new Error(`Erro ao buscar Pokémon: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      pokemonCache[name] = {
+        name: data.name,
+        image: data.sprites.other['official-artwork'].front_default || data.sprites.front_default,
+        height: (data.height / 10).toFixed(1), // Convertendo para metros
+        weight: (data.weight / 10).toFixed(1), // Convertendo para kg
+        types: data.types.map(type => type.type.name).join(', '),
+        abilities: data.abilities.map(ability => ability.ability.name).join(', ')
+      };
+      
+      return pokemonCache[name];
+    } catch (error) {
+      console.error('Erro na requisição:', error);
+      return null;
+    }
+  }
+
+  async function selectPokemon(button, name) {
+    document.querySelectorAll('.pokemon-button').forEach(btn => {
+      if (btn !== button) {
+        btn.classList.remove('selected');
+      }
+    });
+    button.classList.toggle('selected');
+    
+    const pokemon = await fetchPokemonData(name);
+    
+    if (pokemon) {
+      const imgElement = document.getElementById('pokemonImage');
+      imgElement.src = pokemon.image;
+      imgElement.alt = pokemon.name;
+      
+      document.getElementById('pokemonName').textContent = pokemon.name.charAt(0).toUpperCase() + pokemon.name.slice(1);
+      document.getElementById('pokemonTypes').textContent = pokemon.types;
+      document.getElementById('pokemonHeight').textContent = pokemon.height;
+      document.getElementById('pokemonWeight').textContent = pokemon.weight;
+      document.getElementById('pokemonSkills').textContent = pokemon.abilities;
+    } else {
+      console.error('Não foi possível carregar os dados do Pokémon:', name);
+    }
+  }
+  
+  window.addEventListener('DOMContentLoaded', () => {
+    const firstButton = document.querySelector('.pokemon-button');
+    if (firstButton) {
+      firstButton.click();
+    }
+  });
+</script>
+</body>
+</html>
